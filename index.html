@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veritas Engine - Client Độc Lập</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        label { font-weight: 600; color: #34495e; font-size: 14px; }
+        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #bdc3c7; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        input:focus { border-color: #3498db; outline: none; }
+        button { grid-column: span 2; padding: 15px; background-color: #2c3e50; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #1a252f; }
+        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
+        #report { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
+        .status-good { background-color: #e8f8f5; border-left: 5px solid #2ecc71; }
+        .status-bad { background-color: #fdedec; border-left: 5px solid #e74c3c; }
+        #chart_container { text-align: center; margin-top: 20px; }
+        #chart_img { max-width: 100%; height: auto; display: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Phân Tích Quyết Định 🛡️</h1>
+    
+    <div class="input-grid">
+        <div><label>Sự thật (Real Data):</label><input type="number" id="real_data" value="35"></div>
+        <div><label>Kỳ vọng (ROI):</label><input type="number" id="roi" value="85"></div>
+        <div><label>Áp lực (Stress):</label><input type="number" id="stress" value="65"></div>
+        <div><label>Bất định (Uncertainty):</label><input type="number" id="uncertainty" value="55"></div>
+        <div><label>Đánh đổi (Sacrifice):</label><input type="number" id="sacrifice" value="75"></div>
+        <div><label>Phức tạp (Complexity):</label><input type="number" id="complexity" value="30"></div>
+        
+        <button id="btn-submit" onclick="runAudit()">THẨM ĐỊNH (GỬI LÊN MÁY CHỦ)</button>
+    </div>
+
+    <div id="report"></div>
+    <div id="chart_container">
+        <img id="chart_img" src="" alt="Biểu đồ Radar">
+    </div>
+</div>
+
+<script>
+    async function runAudit() {
+        const btn = document.getElementById("btn-submit");
+        const reportDiv = document.getElementById("report");
+        const chartImg = document.getElementById("chart_img");
+
+        // 1. Gói dữ liệu từ người dùng
+        const payload = {
+            real_data: parseFloat(document.getElementById("real_data").value),
+            roi: parseFloat(document.getElementById("roi").value),
+            stress: parseFloat(document.getElementById("stress").value),
+            uncertainty: parseFloat(document.getElementById("uncertainty").value),
+            sacrifice: parseFloat(document.getElementById("sacrifice").value),
+            complexity: parseFloat(document.getElementById("complexity").value)
+        };
+
+        // ==========================================
+        // 🚨 THAY URL NÀY BẰNG LINK RENDER CỦA BẠN 🚨
+        // Ví dụ: "https://veritas-backend-xyz.onrender.com/audit"
+        // Nếu test nội bộ trên máy, dùng: "http://127.0.0.1:10000/audit"
+        // ==========================================
+        const API_URL = "https://veritas-api-backend-3726.onrender.com/audit";
+
+        // Hiệu ứng chờ
+        btn.disabled = true;
+        btn.innerText = "ĐANG TÍNH TOÁN...";
+        reportDiv.style.display = "none";
+        chartImg.style.display = "none";
+
+        try {
+            // 2. Bắn dữ liệu qua đường hầm API
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error("Máy chủ Backend không phản hồi!");
+
+            const result = await response.json();
+
+            // 3. Hiển thị kết quả trả về
+            reportDiv.innerHTML = `
+                <h3 style="margin-top:0;">Điểm Sống Sót: ${result.average}%</h3>
+                <p><b>Trạng thái:</b> ${result.status}</p>
+                <hr style="border:0; border-top:1px solid #ddd;">
+                <p style="font-size:14px; color:#555;">(Dữ liệu đã được xử lý bảo mật trên máy chủ tĩnh)</p>
+            `;
+            
+            if (result.average >= 30) {
+                reportDiv.className = "status-good";
+            } else {
+                reportDiv.className = "status-bad";
+            }
+            reportDiv.style.display = "block";
+
+            // Hiển thị ảnh Base64
+            chartImg.src = result.chart_image;
+            chartImg.style.display = "block";
+
+        } catch (error) {
+            alert("Lỗi kết nối API: " + error.message + "\n\n(Kiểm tra lại xem Backend đã chạy chưa hoặc link API_URL đã đúng chưa!)");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "THẨM ĐỊNH LẠI";
+        }
+    }
+</script>
+
+</body>
+</html>
