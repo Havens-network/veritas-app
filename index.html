@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phân Tích Quyết Định</title>
-    <meta property="og:title" content="Veritas Engine - Bàn Cân Quyết Định">
-    <meta property="og:description" content="Công cụ định lượng rủi ro. Nhập các chỉ số để đánh giá tỷ lệ sống sót của dự án.">
-    <meta property="og:image" content="https://img.freepik.com/free-vector/shield-flat-icon_126283-20.jpg?w=800">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
-    <style>
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 15px 20px; color: #333; line-height: 1.5; }
+    <style>body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 15px 20px; color: #333; line-height: 1.5; }
 .container { max-width: 950px; margin: auto; background: white; padding: 25px 35px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 h1 { color: #2c3e50; text-align: center; margin-top: 0; font-size: 26px; margin-bottom: 5px; }
 .intro { text-align: center; color: #7f8c8d; font-size: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
@@ -54,10 +50,31 @@ button:hover { background-color: #1a252f; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr 1fr; } button { grid-column: span 2; } }
 @media (max-width: 500px) { .input-grid { grid-template-columns: 1fr; } button { grid-column: span 1; } }
-    </style>
+.status-link {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.85em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 5px;
+    transition: 0.3s;
+}
+
+.status-link:hover {
+    color: #28a745; /* Đổi sang màu xanh lá khi di chuột vào */
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745; /* Màu xanh biểu tượng cho sự sống */
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 5px #28a745;
+}</style>
 </head>
-<body>
-<div class="container">
+<body><div class="container">
     <h1>Phân Tích Quyết Định 🛡️</h1>
     <p class="intro">Nhập các chỉ số (từ 0 đến 100) để đánh giá mức độ rủi ro và tỷ lệ sống sót của dự án.</p>
 
@@ -145,7 +162,11 @@ button:hover { background-color: #1a252f; }
     <div id="chart_container"><img id="chart_img" src="" alt="Radar Chart"></div>
 
     <div class="footer">
-        © 2026 Được phát triển bởi Havens Network. Mọi quyết định đều có giá của nó.
+    <p>© 2026 Được phát triển bởi Havens Network. Mọi quyết định đều có giá trị của nó.</p>
+    
+    <a href="https://havens-network.betteruptime.com" target="_blank" class="status-link">
+        <span class="status-dot"></span> Trạng thái hệ thống (System Status)
+    </a>
     </div>
 </div>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-1NY5XD44SH"></script>
@@ -155,9 +176,7 @@ button:hover { background-color: #1a252f; }
   gtag('js', new Date());
 
   gtag('config', 'G-1NY5XD44SH');
-</script>
-<script>
-const clamp = (num) => Math.max(0, Math.min(100, Math.round(num)));
+</script><script>const clamp = (num) => Math.max(0, Math.min(100, Math.round(num)));
 
 function updateLabels(el) {
     const val = clamp(parseInt(el.value) || 0);
@@ -226,7 +245,5 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
         document.getElementById("chart_img").style.display = "block";
     } catch (e) { alert("Máy chủ đang khởi động, vui lòng thử lại sau 30 giây!"); }
     finally { btn.disabled = false; btn.innerText = "THẨM ĐỊNH LẠI"; }
-});
-</script>
-</body>
+});</script></body>
 </html>
