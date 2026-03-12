@@ -3,115 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veritas Engine - Client Độc Lập</title>
+    <title>Phân Tích Quyết Định</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        label { font-weight: 600; color: #34495e; font-size: 14px; }
-        input { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #bdc3c7; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        input:focus { border-color: #3498db; outline: none; }
-        button { grid-column: span 2; padding: 15px; background-color: #2c3e50; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 15px 20px; color: #333; line-height: 1.5; }
+        .container { max-width: 950px; margin: auto; background: white; padding: 25px 35px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        h1 { color: #2c3e50; text-align: center; margin-top: 0; font-size: 26px; margin-bottom: 5px; }
+        .intro { text-align: center; color: #7f8c8d; font-size: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        
+        .guide-box { margin-bottom: 20px; background: #ebf5fb; border-radius: 8px; border: 1px solid #d6eaf8; }
+        .guide-summary { font-weight: bold; color: #2980b9; padding: 10px 15px; cursor: pointer; list-style: none; outline: none; font-size: 13px;}
+        .guide-summary::-webkit-details-marker { display: none; }
+        .guide-content { padding: 0 15px 12px 15px; font-size: 12px; color: #34495e; border-top: 1px solid #d6eaf8; margin-top: 5px; padding-top: 10px; }
+        .guide-content ul { padding-left: 20px; margin-top: 5px; }
+        .guide-content li { margin-bottom: 5px; }
+
+        .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+        .input-group { background: #f9fbfb; padding: 12px; border-radius: 8px; border: 1px solid #eef2f2; position: relative; }
+        
+        .live-label { font-size: 10px; font-weight: bold; position: absolute; top: 10px; right: 10px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .lvl-good { color: #27ae60; background: #e8f8f5; }
+        .lvl-mid { color: #f39c12; background: #fef5e7; }
+        .lvl-bad { color: #e74c3c; background: #fdedec; }
+
+        .roi-box { background: #fffdf5; border: 2px solid #f1c40f; }
+
+        label { font-weight: 700; color: #2c3e50; font-size: 12px; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; border: 2px solid #bdc3c7; border-radius: 5px; box-sizing: border-box; font-size: 15px; font-weight: bold; color: #2980b9; transition: all 0.2s; }
+
+        button { grid-column: span 3; padding: 14px; background-color: #2c3e50; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px;}
         button:hover { background-color: #1a252f; }
-        button:disabled { background-color: #95a5a6; cursor: not-allowed; }
-        #report { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
-        .status-good { background-color: #e8f8f5; border-left: 5px solid #2ecc71; }
-        .status-bad { background-color: #fdedec; border-left: 5px solid #e74c3c; }
-        #chart_container { text-align: center; margin-top: 20px; }
-        #chart_img { max-width: 100%; height: auto; display: none; border-radius: 5px; }
+        
+        #report { margin-top: 20px; padding: 20px; border-radius: 8px; display: none; animation: fadeIn 0.5s; }
+        .status-good { background-color: #e8f8f5; border-left: 6px solid #2ecc71; }
+        .status-neutral { background-color: #fef9e7; border-left: 6px solid #f1c40f; }
+        .status-bad { background-color: #fdedec; border-left: 6px solid #e74c3c; }
+
+        .verdict-item { font-size: 13px; margin-top: 8px; padding-left: 15px; border-left: 2px solid #ddd; }
+        #chart_img { max-width: 100%; height: auto; display: none; margin: 20px auto; max-height: 350px;}
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr 1fr; } button { grid-column: span 2; } }
+        @media (max-width: 500px) { .input-grid { grid-template-columns: 1fr; } button { grid-column: span 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Phân Tích Quyết Định 🛡️</h1>
-    
-    <div class="input-grid">
-        <div><label>Sự thật (Real Data):</label><input type="number" id="real_data" value="35"></div>
-        <div><label>Kỳ vọng (ROI):</label><input type="number" id="roi" value="85"></div>
-        <div><label>Áp lực (Stress):</label><input type="number" id="stress" value="65"></div>
-        <div><label>Bất định (Uncertainty):</label><input type="number" id="uncertainty" value="55"></div>
-        <div><label>Đánh đổi (Sacrifice):</label><input type="number" id="sacrifice" value="75"></div>
-        <div><label>Phức tạp (Complexity):</label><input type="number" id="complexity" value="30"></div>
-        
-        <button id="btn-submit" onclick="runAudit()">THẨM ĐỊNH (GỬI LÊN MÁY CHỦ)</button>
-    </div>
+    <p class="intro">Nhập các chỉ số (từ 0 đến 100) để đánh giá mức độ rủi ro và tỷ lệ sống sót của dự án.</p>
+
+    <details class="guide-box">
+        <summary class="guide-summary">📖 Cách nhập liệu & Kiểm chứng (Bấm để xem)</summary>
+        <div class="guide-content">
+            <b>1. Thang điểm chuẩn: 0 (Thấp/Mờ mịt) ➔ 100 (Cao/Rõ ràng)</b>
+            <ul>
+                <li><b>Kho Báu (ROI):</b> Càng cao điểm Sống sót càng tăng.</li>
+                <li><b>Ngũ Quỷ (Rủi ro):</b> Càng cao điểm Sống sót càng giảm.</li>
+            </ul>
+            <hr style="border:0; border-top:1px dashed #bdc3c7; margin: 10px 0;">
+            <b>2. 🔍 Cách bạn tự kiểm chứng:</b>
+            <ul>
+                <li><b>Đọc vị Biểu đồ:</b> Một quyết định an toàn sẽ tạo ra một hình đa giác đều, căng tròn. Một quyết định rủi ro sẽ tạo ra một hình móp méo, sắc nhọn như lưỡi dao. Hãy quan sát hình dáng biểu đồ radar!</li>
+                <li><b>Thử nghiệm cực đoan:</b> Nhập ROI=100 và Quỷ=0 để xem hệ thống trả về điểm tối đa.</li>
+            </ul>
+        </div>
+    </details>
+
+    <form id="auditForm">
+        <div class="input-grid">
+            <div class="input-group roi-box">
+                <label>🏆 Kỳ vọng (Kho Báu):</label>
+                <input type="number" id="roi" value="50">
+                <span id="roi-lvl" class="live-label">...</span>
+            </div>
+            <div class="input-group">
+                <label>👹 Sự thật (Descartes):</label>
+                <input type="number" id="real_data" value="50">
+                <span id="real_data-lvl" class="live-label">...</span>
+            </div>
+            <div class="input-group">
+                <label>👹 Áp lực (Maxwell):</label>
+                <input type="number" id="stress" value="50">
+                <span id="stress-lvl" class="live-label">...</span>
+            </div>
+            <div class="input-group">
+                <label>👹 Bất định (Laplace):</label>
+                <input type="number" id="uncertainty" value="50">
+                <span id="uncertainty-lvl" class="live-label">...</span>
+            </div>
+            <div class="input-group">
+                <label>👹 Đánh đổi (Darwin):</label>
+                <input type="number" id="sacrifice" value="50">
+                <span id="sacrifice-lvl" class="live-label">...</span>
+            </div>
+            <div class="input-group">
+                <label>👹 Phức tạp (Gödel):</label>
+                <input type="number" id="complexity" value="50">
+                <span id="complexity-lvl" class="live-label">...</span>
+            </div>
+            <button type="submit" id="btn-submit">THẨM ĐỊNH</button>
+        </div>
+    </form>
 
     <div id="report"></div>
-    <div id="chart_container">
-        <img id="chart_img" src="" alt="Biểu đồ Radar">
-    </div>
+    <div id="chart_container"><img id="chart_img" src="" alt="Radar Chart"></div>
 </div>
 
 <script>
-    async function runAudit() {
+    const clamp = (num) => Math.max(0, Math.min(100, Math.round(num)));
+
+    function updateLabels(el) {
+        const val = clamp(parseInt(el.value) || 0);
+        const label = document.getElementById(el.id + '-lvl');
+        
+        if (el.id === 'roi') {
+            label.innerText = val < 30 ? 'Ít ỏi' : (val < 70 ? 'Hấp dẫn' : 'Cực lớn');
+            label.className = 'live-label ' + (val < 30 ? 'lvl-mid' : 'lvl-good');
+        } else if (el.id === 'real_data') {
+            label.innerText = val < 30 ? 'Mù mờ' : (val < 70 ? 'Có cơ sở' : 'Rất rõ ràng');
+            label.className = 'live-label ' + (val < 30 ? 'lvl-bad' : 'lvl-good');
+        } else {
+            label.innerText = val < 30 ? 'Nhẹ nhàng' : (val < 70 ? 'Đáng ngại' : 'Nghiêm trọng');
+            label.className = 'live-label ' + (val < 30 ? 'lvl-good' : (val < 70 ? 'lvl-mid' : 'lvl-bad'));
+        }
+        
+        const isMonster = el.id !== 'roi' && el.id !== 'real_data';
+        if ((isMonster && val > 70) || (el.id === 'real_data' && val < 30)) { el.style.borderColor = '#e74c3c'; }
+        else if ((isMonster && val < 30) || (el.id === 'real_data' && val > 70)) { el.style.borderColor = '#2ecc71'; }
+        else { el.style.borderColor = '#bdc3c7'; }
+    }
+
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', function() { 
+            this.value = this.value.replace(/[^0-9]/g, ''); 
+            updateLabels(this);
+        });
+        input.addEventListener('keydown', function(e) {
+            if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+        });
+        input.addEventListener('blur', function() { 
+            this.value = (this.value !== "") ? clamp(parseFloat(this.value)) : 0;
+            updateLabels(this);
+        });
+        updateLabels(input);
+    });
+
+    document.getElementById('auditForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
         const btn = document.getElementById("btn-submit");
         const reportDiv = document.getElementById("report");
-        const chartImg = document.getElementById("chart_img");
-
-        // 1. Gói dữ liệu từ người dùng
-        const payload = {
-            real_data: parseFloat(document.getElementById("real_data").value),
-            roi: parseFloat(document.getElementById("roi").value),
-            stress: parseFloat(document.getElementById("stress").value),
-            uncertainty: parseFloat(document.getElementById("uncertainty").value),
-            sacrifice: parseFloat(document.getElementById("sacrifice").value),
-            complexity: parseFloat(document.getElementById("complexity").value)
-        };
-
-        // ==========================================
-        // 🚨 THAY URL NÀY BẰNG LINK RENDER CỦA BẠN 🚨
-        // Ví dụ: "https://veritas-backend-xyz.onrender.com/audit"
-        // Nếu test nội bộ trên máy, dùng: "http://127.0.0.1:10000/audit"
-        // ==========================================
-        const API_URL = "https://veritas-api-backend-3726.onrender.com/audit";
-
-        // Hiệu ứng chờ
-        btn.disabled = true;
-        btn.innerText = "ĐANG TÍNH TOÁN...";
-        reportDiv.style.display = "none";
-        chartImg.style.display = "none";
-
+        btn.disabled = true; btn.innerText = "ĐANG PHÂN TÍCH QUYẾT ĐỊNH...";
+        
         try {
-            // 2. Bắn dữ liệu qua đường hầm API
-            const response = await fetch(API_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
+            const response = await fetch("https://veritas-api-backend-3726.onrender.com/audit", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    real_data: clamp(document.getElementById("real_data").value),
+                    roi: clamp(document.getElementById("roi").value),
+                    stress: clamp(document.getElementById("stress").value),
+                    uncertainty: clamp(document.getElementById("uncertainty").value),
+                    sacrifice: clamp(document.getElementById("sacrifice").value),
+                    complexity: clamp(document.getElementById("complexity").value)
+                })
             });
-
-            if (!response.ok) throw new Error("Máy chủ Backend không phản hồi!");
-
             const result = await response.json();
 
-            // 3. Hiển thị kết quả trả về
-            reportDiv.innerHTML = `
-                <h3 style="margin-top:0;">Điểm Sống Sót: ${result.average}%</h3>
-                <p><b>Trạng thái:</b> ${result.status}</p>
-                <hr style="border:0; border-top:1px solid #ddd;">
-                <p style="font-size:14px; color:#555;">(Dữ liệu đã được xử lý bảo mật trên máy chủ tĩnh)</p>
-            `;
+            let verdictHTML = `<div style="font-weight:bold; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">🔍 Phân tích chuyên sâu:</div>`;
+            if (clamp(document.getElementById("real_data").value) < 30) verdictHTML += `<p class="verdict-item">⚠️ <b>Cảnh báo:</b> Dữ liệu đầu vào quá thấp. Bạn đang quyết định dựa trên cảm tính hoặc tin đồn.</p>`;
+            if (clamp(document.getElementById("stress").value) > 75) verdictHTML += `<p class="verdict-item">🔥 <b>Quá tải:</b> Áp lực đang ở mức báo động đỏ.</p>`;
             
-            if (result.average >= 30) {
-                reportDiv.className = "status-good";
-            } else {
-                reportDiv.className = "status-bad";
-            }
+            reportDiv.innerHTML = `<h2>Điểm Sống Sót: ${result.average}%</h2><p><b>Trạng thái:</b> ${result.average > 70 ? "XÁC SUẤT THÀNH CÔNG CAO" : (result.average < 40 ? "RỦI RO CỰC CAO" : "TRUNG BÌNH / CẨN TRỌNG")}</p>${verdictHTML}`;
+            reportDiv.className = result.average > 70 ? "status-good" : (result.average < 40 ? "status-bad" : "status-neutral");
             reportDiv.style.display = "block";
-
-            // Hiển thị ảnh Base64
-            chartImg.src = result.chart_image;
-            chartImg.style.display = "block";
-
-        } catch (error) {
-            alert("Lỗi kết nối API: " + error.message + "\n\n(Kiểm tra lại xem Backend đã chạy chưa hoặc link API_URL đã đúng chưa!)");
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "THẨM ĐỊNH LẠI";
-        }
-    }
+            document.getElementById("chart_img").src = result.chart_image;
+            document.getElementById("chart_img").style.display = "block";
+        } catch (e) { alert("Máy chủ đang khởi động, vui lòng thử lại sau 30 giây!"); }
+        finally { btn.disabled = false; btn.innerText = "THẨM ĐỊNH LẠI"; }
+    });
 </script>
-
 </body>
 </html>
