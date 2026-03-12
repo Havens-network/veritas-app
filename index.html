@@ -203,34 +203,56 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
         });
         const result = await response.json();
 
-        reportContent.innerHTML = `<h2>Điểm Sống Sót: ${result.average}%</h2><p><b>Trạng thái:</b> ${result.average > 70 ? "XÁC SUẤT THÀNH CÔNG CAO" : "CẨN TRỌNG"}</p>`;
+        // Cập nhật nội dung kết quả
+        reportContent.innerHTML = `
+            <h2>Điểm Sống Sót: ${result.average}%</h2>
+            <p><b>Trạng thái:</b> ${result.average > 70 ? "XÁC SUẤT THÀNH CÔNG CAO" : (result.average < 40 ? "RỦI RO CỰC CAO" : "TRUNG BÌNH / CẨN TRỌNG")}</p>
+            <div style="font-weight:bold; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">🔍 Phân tích chuyên sâu:</div>
+            <p class="verdict-item">Báo cáo chi tiết đã được hệ thống Veritas xử lý dựa trên các chỉ số thực tế.</p>
+        `;
         
         reportBox.style.display = "block";
-        document.getElementById("chart_img").src = result.chart_image;
-        document.getElementById("chart_img").style.display = "block";
+        const img = document.getElementById("chart_img");
+        img.src = result.chart_image;
+        img.style.display = "block";
+        
+        // Đảm bảo nút PDF hiện lên
         pdfBtn.style.display = "block";
 
     } catch (e) { alert("Vui lòng thử lại sau 30s!"); }
     finally { btn.disabled = false; btn.innerText = "THẨM ĐỊNH LẠI"; }
 });
 
-function exportToPDF() {
+async function exportToPDF() {
     const element = document.getElementById('report');
     const header = document.getElementById('pdf-header');
     const timestamp = document.getElementById('pdf-timestamp');
+    const chartImg = document.getElementById('chart_img');
 
+    // 1. Hiện Header và chuẩn bị dữ liệu
     header.style.display = 'block';
     timestamp.innerText = "Ngày lập: " + new Date().toLocaleString('vi-VN');
 
+    // 2. Kiểm tra xem ảnh biểu đồ đã tải xong chưa
+    if (chartImg.src && !chartImg.complete) {
+        await new Promise(resolve => {
+            chartImg.onload = resolve;
+            chartImg.onerror = resolve;
+        });
+    }
+
+    // 3. Chờ thêm 500ms để trình duyệt render ổn định
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     const opt = {
         margin: [10, 10],
-        filename: 'Bao_Cao_Veritas.pdf',
+        filename: 'Bao_Cao_Veritas_Official.pdf',
         image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // Chạy lệnh lưu PDF và ẩn header ngay sau đó
+    // 4. Đúc PDF
     html2pdf().set(opt).from(element).save().then(() => {
         header.style.display = 'none';
     });
