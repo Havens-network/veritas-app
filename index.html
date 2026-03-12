@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phân Tích Quyết Định</title>
+    
+    <meta property="og:title" content="Phân Tích Quyết Định - Havens Network">
+    <meta property="og:description" content="Công cụ định lượng rủi ro. Nhập các chỉ số để đánh giá tỷ lệ sống sót của dự án.">
+    <meta property="og:image" content="https://img.freepik.com/free-vector/shield-flat-icon_126283-20.jpg?w=800">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 15px 20px; color: #333; line-height: 1.5; }
         .container { max-width: 950px; margin: auto; background: white; padding: 25px 35px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
@@ -14,8 +21,12 @@
         .guide-summary { font-weight: bold; color: #2980b9; padding: 10px 15px; cursor: pointer; list-style: none; outline: none; font-size: 13px;}
         .guide-summary::-webkit-details-marker { display: none; }
         .guide-content { padding: 0 15px 12px 15px; font-size: 12px; color: #34495e; border-top: 1px solid #d6eaf8; margin-top: 5px; padding-top: 10px; }
-        .guide-content ul { padding-left: 20px; margin-top: 5px; }
+        .guide-content ul { padding-left: 20px; margin-top: 5px; margin-bottom: 15px; }
         .guide-content li { margin-bottom: 5px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 15px; background-color: #fff; }
+        th, td { border: 1px solid #d6eaf8; padding: 6px 10px; text-align: left; font-size: 12px; }
+        th { background-color: #eaf2f8; color: #2980b9; }
 
         .input-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
         .input-group { background: #f9fbfb; padding: 12px; border-radius: 8px; border: 1px solid #eef2f2; position: relative; }
@@ -40,6 +51,9 @@
 
         .verdict-item { font-size: 13px; margin-top: 8px; padding-left: 15px; border-left: 2px solid #ddd; }
         #chart_img { max-width: 100%; height: auto; display: none; margin: 20px auto; max-height: 350px;}
+
+        /* FOOTER THƯƠNG HIỆU */
+        .footer { text-align: center; font-size: 12px; color: #95a5a6; margin-top: 30px; border-top: 1px solid #ecf0f1; padding-top: 15px; }
         
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @media (max-width: 768px) { .input-grid { grid-template-columns: 1fr 1fr; } button { grid-column: span 2; } }
@@ -53,18 +67,45 @@
     <p class="intro">Nhập các chỉ số (từ 0 đến 100) để đánh giá mức độ rủi ro và tỷ lệ sống sót của dự án.</p>
 
     <details class="guide-box">
-        <summary class="guide-summary">📖 Cách nhập liệu & Kiểm chứng (Bấm để xem)</summary>
+        <summary class="guide-summary">📖 Cách nhập liệu, Lượng hóa thông tin & Kiểm chứng</summary>
         <div class="guide-content">
-            <b>1. Thang điểm chuẩn: 0 (Thấp/Mờ mịt) ➔ 100 (Cao/Rõ ràng)</b>
+            <b>1. Bước chuẩn bị (Lượng hóa tư vấn từ AI):</b>
+            <p style="margin-top: 5px; margin-bottom: 5px;">Bạn nên hỏi AI (Gemini/ChatGPT) phân tích vấn đề trước, sau đó dùng bảng này để dịch lời khuyên thành con số:</p>
+            <table>
+                <tr>
+                    <th>Đánh giá từ AI / Nhận định của bản thân</th>
+                    <th>Điểm tương ứng</th>
+                </tr>
+                <tr>
+                    <td>Chắc chắn, rõ ràng, có hợp đồng/bằng chứng cụ thể</td>
+                    <td><b>80 - 100</b></td>
+                </tr>
+                <tr>
+                    <td>Khá ổn, có triển vọng nhưng vẫn còn vài điểm hở</td>
+                    <td><b>60 - 70</b></td>
+                </tr>
+                <tr>
+                    <td>Nửa tin nửa ngờ, chỉ là lời đồn, ít dữ kiện xác thực</td>
+                    <td><b>40 - 50</b></td>
+                </tr>
+                <tr>
+                    <td>Rất mù mờ, đoán mò, rủi ro cực cao, thiếu cơ sở</td>
+                    <td><b>0 - 30</b></td>
+                </tr>
+            </table>
+
+            <b>2. Thang điểm chuẩn:</b>
             <ul>
                 <li><b>Kho Báu (ROI):</b> Càng cao điểm Sống sót càng tăng.</li>
                 <li><b>Ngũ Quỷ (Rủi ro):</b> Càng cao điểm Sống sót càng giảm.</li>
             </ul>
+            
             <hr style="border:0; border-top:1px dashed #bdc3c7; margin: 10px 0;">
-            <b>2. 🔍 Cách bạn tự kiểm chứng:</b>
+            
+            <b>3. 🔍 Cách đọc vị kết quả:</b>
             <ul>
-                <li><b>Đọc vị Biểu đồ:</b> Một quyết định an toàn sẽ tạo ra một hình đa giác đều, căng tròn. Một quyết định rủi ro sẽ tạo ra một hình móp méo, sắc nhọn như lưỡi dao. Hãy quan sát hình dáng biểu đồ radar!</li>
-                <li><b>Thử nghiệm cực đoan:</b> Nhập ROI=100 và Quỷ=0 để xem hệ thống trả về điểm tối đa.</li>
+                <li><b>Đọc vị Biểu đồ:</b> Một quyết định an toàn sẽ tạo ra một hình đa giác đều, căng tròn. Một quyết định rủi ro sẽ tạo ra một hình móp méo, sắc nhọn như lưỡi dao.</li>
+                <li><b>Thử nghiệm cực đoan:</b> Hãy thử nhập ROI=100 và Ngũ Quỷ=0 để xem hệ thống trả về điểm tối đa.</li>
             </ul>
         </div>
     </details>
@@ -107,6 +148,10 @@
 
     <div id="report"></div>
     <div id="chart_container"><img id="chart_img" src="" alt="Radar Chart"></div>
+
+    <div class="footer">
+        © 2026 Được phát triển bởi Havens Network. Mọi quyết định đều có giá của nó.
+    </div>
 </div>
 
 <script>
