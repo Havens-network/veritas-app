@@ -149,7 +149,25 @@ button:hover { background-color: #1a252f; }
         </div>
     </form>
 
-    <div id="report"></div>
+    <div id="report">
+    <div id="pdf-header" style="display: none; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="width: 50%;">
+                    <h2 style="margin: 0; color: #1a1a1a;">HAVENS NETWORK</h2>
+                    <p style="margin: 2px 0; font-size: 12px; color: #666;">Hệ sinh thái Công nghệ & Phân tích</p>
+                </td>
+                <td style="width: 50%; text-align: right; vertical-align: bottom;">
+                    <p style="margin: 0; font-style: italic; font-size: 13px;">Báo cáo thẩm định Veritas Engine</p>
+                    <p id="pdf-timestamp" style="margin: 2px 0; font-size: 12px; color: #666;"></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="report-content">
+        </div>
+</div>
     <div id="chart_container"><img id="chart_img" src="" alt="Radar Chart"></div>
 
     <div class="footer">
@@ -236,4 +254,28 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
         document.getElementById("chart_img").style.display = "block";
     } catch (e) { alert("Máy chủ đang khởi động, vui lòng thử lại sau 30 giây!"); }
     finally { btn.disabled = false; btn.innerText = "THẨM ĐỊNH LẠI"; }
-});</script></body></html>
+});
+function exportToPDF() {
+    const element = document.getElementById('report');
+    const header = document.getElementById('pdf-header');
+    const timestamp = document.getElementById('pdf-timestamp');
+
+    // 1. Chuẩn bị Header: Hiện lên và điền thời gian thực
+    header.style.display = 'block';
+    const now = new Date();
+    timestamp.innerText = "Ngày lập: " + now.toLocaleString('vi-VN');
+
+    // 2. Cấu hình PDF
+    const opt = {
+        margin:       [15, 15, 15, 15],
+        filename:     'Veritas_Official_Report.pdf',
+        image:        { type: 'jpeg', quality: 1.0 },
+        html2canvas:  { scale: 3, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // 3. Tiến hành đúc và ẩn lại Header sau khi xong
+    html2pdf().set(opt).from(element).save().then(() => {
+        header.style.display = 'none'; // Ẩn lại sau khi đã xuất PDF xong
+    });
+}</script></body></html>
