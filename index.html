@@ -73,13 +73,43 @@ button:hover { background-color: #1a252f; }
         <summary class="guide-summary">📖 Cách nhập liệu, Lượng hóa thông tin & Kiểm chứng (Bấm để xem)</summary>
         <div class="guide-content">
             <b>1. Bước chuẩn bị (Lượng hóa tư vấn từ AI):</b>
+            <p style="margin-top: 5px; margin-bottom: 5px;">Bạn nên hỏi AI (Gemini/ChatGPT) phân tích vấn đề trước, sau đó dùng bảng này để dịch lời khuyên thành con số:</p>
             <table>
-                <tr><th>Đánh giá</th><th>Điểm</th></tr>
-                <tr><td>Rõ ràng/Chắc chắn</td><td><b>80 - 100</b></td></tr>
-                <tr><td>Khá ổn/Triển vọng</td><td><b>60 - 70</b></td></tr>
-                <tr><td>Nửa tin nửa ngờ</td><td><b>40 - 50</b></td></tr>
-                <tr><td>Mù mờ/Đoán mò</td><td><b>0 - 30</b></td></tr>
+                <tr>
+                    <th>Đánh giá từ AI / Nhận định của bản thân</th>
+                    <th>Điểm tương ứng</th>
+                </tr>
+                <tr>
+                    <td>Chắc chắn, rõ ràng, có hợp đồng/bằng chứng cụ thể</td>
+                    <td><b>80 - 100</b></td>
+                </tr>
+                <tr>
+                    <td>Khá ổn, có triển vọng nhưng vẫn còn vài điểm hở</td>
+                    <td><b>60 - 70</b></td>
+                </tr>
+                <tr>
+                    <td>Nửa tin nửa ngờ, chỉ là lời đồn, ít dữ kiện xác thực</td>
+                    <td><b>40 - 50</b></td>
+                </tr>
+                <tr>
+                    <td>Rất mù mờ, đoán mò, rủi ro cực cao, thiếu cơ sở</td>
+                    <td><b>0 - 30</b></td>
+                </tr>
             </table>
+
+            <b>2. Thang điểm chuẩn:</b>
+            <ul>
+                <li><b>Kho Báu (ROI):</b> Càng cao điểm Sống sót càng tăng.</li>
+                <li><b>Ngũ Quỷ (Rủi ro):</b> Càng cao điểm Sống sót càng giảm.</li>
+            </ul>
+            
+            <hr style="border:0; border-top:1px dashed #bdc3c7; margin: 10px 0;">
+            
+            <b>3. 🔍 Cách đọc vị kết quả:</b>
+            <ul>
+                <li><b>Đọc vị Biểu đồ:</b> Một quyết định an toàn sẽ tạo ra một hình đa giác đều, căng tròn. Một quyết định rủi ro sẽ tạo ra một hình móp méo, sắc nhọn như lưỡi dao.</li>
+                <li><b>Thử nghiệm cực đoan:</b> Hãy thử nhập ROI=100 và Ngũ Quỷ=0 để xem hệ thống trả về điểm tối đa.</li>
+            </ul>
         </div>
     </details>
 
@@ -119,7 +149,7 @@ button:hover { background-color: #1a252f; }
         </div>
     </form>
 
-    <div id="report" style="padding: 20px; background: white;">
+    <div id="report">
         <div id="pdf-header" style="display: none; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
@@ -136,14 +166,12 @@ button:hover { background-color: #1a252f; }
         </div>
 
         <div id="report-content"></div>
-        
-        <div id="chart_container" style="text-align: center; margin-top: 20px;">
-            <img id="chart_img" src="" alt="Radar Chart" style="max-width: 100%; height: auto; display: none; margin: 0 auto;">
-        </div>
     </div>
 
+    <div id="chart_container"><img id="chart_img" src="" alt="Radar Chart"></div>
+
     <div id="pdf-action" style="display: none; text-align: center; margin-top: 20px;">
-        <button onclick="exportToPDF()" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: auto;">
+        <button onclick="exportToPDF()" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: auto; grid-column: auto;">
             📄 Tải Báo Cáo Thẩm Định (PDF)
         </button>
     </div>
@@ -161,7 +189,6 @@ button:hover { background-color: #1a252f; }
 function updateLabels(el) {
     const val = clamp(parseInt(el.value) || 0);
     const label = document.getElementById(el.id + '-lvl');
-    if (!label) return;
     
     if (el.id === 'roi') {
         label.innerText = val < 30 ? 'Ít ỏi' : (val < 70 ? 'Hấp dẫn' : 'Cực lớn');
@@ -173,21 +200,37 @@ function updateLabels(el) {
         label.innerText = val < 30 ? 'Nhẹ nhàng' : (val < 70 ? 'Đáng ngại' : 'Nghiêm trọng');
         label.className = 'live-label ' + (val < 30 ? 'lvl-good' : (val < 70 ? 'lvl-mid' : 'lvl-bad'));
     }
+    
+    const isMonster = el.id !== 'roi' && el.id !== 'real_data';
+    if ((isMonster && val > 70) || (el.id === 'real_data' && val < 30)) { el.style.borderColor = '#e74c3c'; }
+    else if ((isMonster && val < 30) || (el.id === 'real_data' && val > 70)) { el.style.borderColor = '#2ecc71'; }
+    else { el.style.borderColor = '#bdc3c7'; }
 }
 
 document.querySelectorAll('input').forEach(input => {
-    input.addEventListener('input', function() { updateLabels(this); });
+    input.addEventListener('input', function() { 
+        this.value = this.value.replace(/[^0-9]/g, ''); 
+        updateLabels(this);
+    });
+    input.addEventListener('keydown', function(e) {
+        if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+    });
+    input.addEventListener('blur', function() { 
+        this.value = (this.value !== "") ? clamp(parseFloat(this.value)) : 0;
+        updateLabels(this);
+    });
     updateLabels(input);
 });
 
 document.getElementById('auditForm').addEventListener('submit', async function(event) {
     event.preventDefault();
     const btn = document.getElementById("btn-submit");
-    const reportContent = document.getElementById("report-content");
-    const reportBox = document.getElementById("report");
+    const reportContainer = document.getElementById("report");
+    const reportContent = document.getElementById("report-content"); // Trỏ vào vùng nội dung để không đè mất Header
     const pdfBtn = document.getElementById("pdf-action");
 
-    btn.disabled = true; btn.innerText = "ĐANG PHÂN TÍCH...";
+    btn.disabled = true; 
+    btn.innerText = "ĐANG PHÂN TÍCH QUYẾT ĐỊNH...";
     
     try {
         const response = await fetch("https://veritas-api-backend-3726.onrender.com/audit", {
@@ -203,57 +246,50 @@ document.getElementById('auditForm').addEventListener('submit', async function(e
         });
         const result = await response.json();
 
-        // Cập nhật nội dung kết quả
-        reportContent.innerHTML = `
-            <h2>Điểm Sống Sót: ${result.average}%</h2>
-            <p><b>Trạng thái:</b> ${result.average > 70 ? "XÁC SUẤT THÀNH CÔNG CAO" : (result.average < 40 ? "RỦI RO CỰC CAO" : "TRUNG BÌNH / CẨN TRỌNG")}</p>
-            <div style="font-weight:bold; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">🔍 Phân tích chuyên sâu:</div>
-            <p class="verdict-item">Báo cáo chi tiết đã được hệ thống Veritas xử lý dựa trên các chỉ số thực tế.</p>
-        `;
+        let verdictHTML = `<div style="font-weight:bold; margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">🔍 Phân tích chuyên sâu:</div>`;
+        if (clamp(document.getElementById("real_data").value) < 30) verdictHTML += `<p class="verdict-item">⚠️ <b>Cảnh báo:</b> Dữ liệu đầu vào quá thấp. Bạn đang quyết định dựa trên cảm tính hoặc tin đồn.</p>`;
+        if (clamp(document.getElementById("stress").value) > 75) verdictHTML += `<p class="verdict-item">🔥 <b>Quá tải:</b> Áp lực đang ở mức báo động đỏ.</p>`;
         
-        reportBox.style.display = "block";
-        const img = document.getElementById("chart_img");
-        img.src = result.chart_image;
-        img.style.display = "block";
+        // Cập nhật nội dung vào report-content thay vì xóa sạch report
+        reportContent.innerHTML = `<h2>Điểm Sống Sót: ${result.average}%</h2><p><b>Trạng thái:</b> ${result.average > 70 ? "XÁC SUẤT THÀNH CÔNG CAO" : (result.average < 40 ? "RỦI RO CỰC CAO" : "TRUNG BÌNH / CẨN TRỌNG")}</p>${verdictHTML}`;
         
-        // Đảm bảo nút PDF hiện lên
-        pdfBtn.style.display = "block";
+        reportContainer.className = result.average > 70 ? "status-good" : (result.average < 40 ? "status-bad" : "status-neutral");
+        reportContainer.style.display = "block";
+        
+        // Hiển thị biểu đồ và nút PDF
+        document.getElementById("chart_img").src = result.chart_image;
+        document.getElementById("chart_img").style.display = "block";
+        if(pdfBtn) pdfBtn.style.display = "block"; 
 
-    } catch (e) { alert("Vui lòng thử lại sau 30s!"); }
-    finally { btn.disabled = false; btn.innerText = "THẨM ĐỊNH LẠI"; }
+    } catch (e) { 
+        alert("Máy chủ đang khởi động, vui lòng thử lại sau 30 giây!"); 
+    } finally { 
+        btn.disabled = false; 
+        btn.innerText = "THẨM ĐỊNH LẠI"; 
+    }
 });
 
-async function exportToPDF() {
+function exportToPDF() {
     const element = document.getElementById('report');
     const header = document.getElementById('pdf-header');
     const timestamp = document.getElementById('pdf-timestamp');
-    const chartImg = document.getElementById('chart_img');
 
-    // 1. Hiện Header và chuẩn bị dữ liệu
+    // 1. Chuẩn bị Header: Hiện lên và điền thời gian thực
     header.style.display = 'block';
-    timestamp.innerText = "Ngày lập: " + new Date().toLocaleString('vi-VN');
+    const now = new Date();
+    timestamp.innerText = "Ngày lập: " + now.toLocaleString('vi-VN');
 
-    // 2. Kiểm tra xem ảnh biểu đồ đã tải xong chưa
-    if (chartImg.src && !chartImg.complete) {
-        await new Promise(resolve => {
-            chartImg.onload = resolve;
-            chartImg.onerror = resolve;
-        });
-    }
-
-    // 3. Chờ thêm 500ms để trình duyệt render ổn định
-    await new Promise(resolve => setTimeout(resolve, 500));
-
+    // 2. Cấu hình PDF
     const opt = {
-        margin: [10, 10],
-        filename: 'Bao_Cao_Veritas_Official.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        margin:       [15, 15, 15, 15],
+        filename:     'Veritas_Official_Report.pdf',
+        image:        { type: 'jpeg', quality: 1.0 },
+        html2canvas:  { scale: 3, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    // 4. Đúc PDF
+    // 3. Tiến hành đúc và ẩn lại Header sau khi xong
     html2pdf().set(opt).from(element).save().then(() => {
-        header.style.display = 'none';
+        header.style.display = 'none'; // Ẩn lại sau khi đã xuất PDF xong
     });
 }</script></body></html>
